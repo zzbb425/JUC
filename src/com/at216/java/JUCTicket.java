@@ -34,7 +34,5 @@ class Ticket {
             lock.unlock();
         }
 
-
     }
-
 }
