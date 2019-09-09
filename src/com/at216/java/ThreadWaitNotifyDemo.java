@@ -1,6 +1,9 @@
 package com.at216.java;
 
 import javax.sound.midi.Soundbank;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @Classname ThreadWaitNotifyDemo
@@ -24,7 +27,53 @@ class AirConditioner {
 
     private int number = 0;
 
-    public synchronized void addNumber() throws Exception {
+    private Lock lock=new ReentrantLock();
+    private Condition condition=lock.newCondition();
+
+    public  void addNumber() throws Exception {
+        //判断
+        lock.lock();
+        try {
+            while (number != 0) {
+                condition.await();
+            }
+
+            //干活
+            number++;
+            System.out.println(Thread.currentThread().getName() + "\t" + number);
+
+            //唤醒
+            condition.signalAll();
+        } catch (Exception e) {
+             e.printStackTrace();
+        } finally {
+             lock.unlock();
+        }
+
+
+    }
+
+    public  void subNumber() throws Exception {
+        lock.lock();
+        try {
+            //判断
+            while (number == 0) {
+                condition.await();
+            }
+            //干活
+            number--;
+            System.out.println(Thread.currentThread().getName() + "\t" + number);
+            //唤醒
+            condition.signalAll();
+        } catch (Exception e) {
+             e.printStackTrace();
+        } finally {
+             lock.unlock();
+        }
+
+    }
+
+    /*public synchronized void addNumber() throws Exception {
         //判断
         while (number != 0) {
             this.wait();
@@ -49,7 +98,7 @@ class AirConditioner {
         System.out.println(Thread.currentThread().getName() + "\t" + number);
         //唤醒
         this.notifyAll();
-    }
+    }*/
 }
 
 
